@@ -1,11 +1,3 @@
-# 🐾 Animal Shelter Management System (SQL Database Project)
-
-## 📌 Repository Name Suggestion
-`animal-shelter-sql-management`  
-_(Clear, descriptive, and professional for GitHub)_
-
----
-
 ## 📖 Overview
 The **Animal Shelter Management System** is a SQL-based database project developed to streamline animal care, adoption tracking, staff management, and veterinary operations. This project was designed to enhance the efficiency, accuracy, and transparency of shelter operations while providing a scalable foundation for future analytics and reporting.
 
