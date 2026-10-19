@@ -1,60 +1,51 @@
 -- 04 · Triggers (business rules on AdoptionEvent)
 
 GO
--- Create a trigger to check if the adopted animal is either a dog or a cat
+-- Business rule: only dogs and cats can be adopted, and an animal can only be adopted once.
+-- Set-based so a multi-row INSERT is checked row by row; THROW rolls the insert back.
 CREATE TRIGGER CheckAdoptedAnimal
-ON AdoptionEvent
-AFTER INSERT
-AS
-BEGIN
-    DECLARE @AnimalTypeID INT;
-
-    -- Get the TypeID of the adopted animal
-    SELECT @AnimalTypeID = a.TypeID
-    FROM Animal a
-    INNER JOIN inserted i ON a.AnimalID = i.AnimalID;
-
-    -- Check if the adopted animal is neither a dog nor a cat
-    IF @AnimalTypeID NOT IN (SELECT TypeID FROM Type WHERE TypeName IN ('Dog', 'Cat'))
-    BEGIN
-        -- Rollback the transaction to prevent the adoption
-        ROLLBACK;
-        
-        -- Print an error message
-        PRINT 'Error: Only dogs and cats are available for adoption in this shelter.';
-    END
-END;
-
-GO
--- Create Trigger to Update Animal Adoption Status
-CREATE TRIGGER AfterInsertAdoptionEvent
 ON AdoptionEvent
 AFTER INSERT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Update Animal Adoption Status
-    UPDATE Animal
-    SET AdoptionStatus = 'Adopted'
-    FROM Animal
-    INNER JOIN inserted ON Animal.AnimalID = inserted.AnimalID;
+    IF EXISTS (
+        SELECT 1
+        FROM inserted i
+        JOIN Animal a ON a.AnimalID = i.AnimalID
+        JOIN Type t ON t.TypeID = a.TypeID
+        WHERE t.TypeName NOT IN ('Dog', 'Cat')
+    )
+        THROW 50001, 'Only dogs and cats are available for adoption in this shelter.', 1;
+
+    IF EXISTS (
+        SELECT 1
+        FROM inserted i
+        JOIN Animal a ON a.AnimalID = i.AnimalID
+        WHERE a.AdoptionStatus = 'Adopted'
+    )
+        THROW 50002, 'This animal has already been adopted.', 1;
 END;
-
-
 GO
--- Create a trigger that updates the AdoptionStatus when a new adoption event is recorded
+
+-- Mark animals as adopted once their adoption event is recorded
 CREATE TRIGGER UpdateAdoptionStatus
 ON AdoptionEvent
 AFTER INSERT
 AS
 BEGIN
-    -- Update the AdoptionStatus of animals involved in the new adoption events
+    SET NOCOUNT ON;
+
     UPDATE Animal
     SET AdoptionStatus = 'Adopted'
     FROM Animal
     INNER JOIN inserted ON Animal.AnimalID = inserted.AnimalID;
 END;
+GO
+
+-- The eligibility check has to see the status before it is updated
+EXEC sp_settriggerorder @triggername = 'CheckAdoptedAnimal', @order = 'First', @stmttype = 'INSERT';
 GO
 
 -- Insert a new adoption event to trigger the UpdateAdoptionStatus trigger
@@ -65,3 +56,12 @@ VALUES (3, 1, '2024-03-15');
 SELECT AnimalID, AdoptionStatus
 FROM Animal
 WHERE AnimalID = 3;
+
+-- Adopting the same animal again is rejected
+BEGIN TRY
+    INSERT INTO AdoptionEvent(AnimalID, AdopterID, EventDate)
+    VALUES (3, 2, '2024-03-20');
+END TRY
+BEGIN CATCH
+    PRINT CONCAT('Rejected: ', ERROR_MESSAGE());
+END CATCH;
