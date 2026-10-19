@@ -11,27 +11,26 @@ JOIN Type ON Animal.TypeID = Type.TypeID
 GROUP BY Type.TypeName
 ORDER BY AdoptionCount DESC;
 
--- Subquery to Get Most Severe Health Condition
-WITH MostSevereCondition AS (
+-- Latest health condition on record for each animal
+WITH RankedConditions AS (
     SELECT
         AnimalID,
+        ConditionDescription,
         Diagnosis,
-        COUNT(*) AS ConditionCount
+        VisitDate,
+        ROW_NUMBER() OVER (PARTITION BY AnimalID ORDER BY VisitDate DESC) AS rn
     FROM AnimalHealthCondition
-    GROUP BY AnimalID, Diagnosis
-    ORDER BY ConditionCount DESC
-    OFFSET 0 ROWS FETCH NEXT 1 ROW ONLY
 )
-
--- Main Query
 SELECT
     Animal.AnimalName,
-    AnimalHealthCondition.Diagnosis AS MostSevereCondition,
-    MostSevereCondition.ConditionCount
-FROM Animal
-JOIN AnimalHealthCondition ON Animal.AnimalID = AnimalHealthCondition.AnimalID
-JOIN MostSevereCondition ON AnimalHealthCondition.AnimalID = MostSevereCondition.AnimalID;
-
+    Animal.Species,
+    RankedConditions.ConditionDescription,
+    RankedConditions.Diagnosis,
+    RankedConditions.VisitDate
+FROM RankedConditions
+JOIN Animal ON Animal.AnimalID = RankedConditions.AnimalID
+WHERE RankedConditions.rn = 1
+ORDER BY RankedConditions.VisitDate DESC;
 
 -- Complex query with joins
 SELECT
