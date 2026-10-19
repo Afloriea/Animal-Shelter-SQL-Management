@@ -57,8 +57,8 @@ BEGIN
         Animal A
     INNER JOIN
         Type T ON A.TypeID = T.TypeID
-    LEFT JOIN
-        Breed B ON A.TypeID = B.TypeID
+    INNER JOIN
+        Breed B ON A.BreedID = B.BreedID
     WHERE
         A.AdoptionStatus = 'Available';
 END;
