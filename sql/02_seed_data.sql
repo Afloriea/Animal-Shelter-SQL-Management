@@ -3,9 +3,6 @@
 -- Type
 INSERT INTO Type(TypeName) VALUES ('Cat');
 INSERT INTO Type(TypeName) VALUES ('Dog');
-INSERT INTO Type(TypeName) VALUES ('Cat');
-INSERT INTO Type(TypeName) VALUES ('Dog');
-INSERT INTO Type(TypeName) VALUES ('Cat');
 
 -- Breed
 INSERT INTO Breed(BreedName, TypeID) VALUES ('Siamese', 1);
