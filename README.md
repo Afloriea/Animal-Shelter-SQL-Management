@@ -2,9 +2,9 @@
 
 [![Build database](https://github.com/Afloriea/Animal-Shelter-SQL-Management/actions/workflows/build.yml/badge.svg)](https://github.com/Afloriea/Animal-Shelter-SQL-Management/actions/workflows/build.yml)
 
-A relational database for running an animal shelter on SQL Server: animal profiles, adopters, adoptions, health records, enrichment toys, staff and veterinary care. Business rules are enforced in the database with triggers, common workflows are wrapped in stored procedures, and every push rebuilds the whole database on SQL Server 2022 in GitHub Actions.
+A relational database for running an animal shelter on SQL Server (run locally in Docker): animal profiles, adopters, adoptions, health records, enrichment toys, staff and veterinary care. Business rules are enforced in the database with triggers, common workflows are wrapped in stored procedures, and every push rebuilds the whole database on SQL Server 2022 in GitHub Actions.
 
-**Skills shown:** relational modelling · T-SQL · stored procedures · triggers · computed columns · CTEs and window functions · CI for database scripts
+**Skills shown:** relational modelling · T-SQL · stored procedures · triggers · computed columns · CTEs and window functions · Docker · CI for database scripts
 
 ---
 
@@ -125,14 +125,33 @@ Running the original script on a clean SQL Server instance in CI surfaced severa
 
 ---
 
-## ▶️ Run it
+## ▶️ Run it locally
+
+SQL Server runs in Docker, so nothing needs to be installed except Docker Desktop.
+
+**1. Start SQL Server 2022 in a container**
 
 ```bash
-sqlcmd -S <server> -Q "CREATE DATABASE AnimalShelter"
-for f in sql/*.sql; do sqlcmd -S <server> -d AnimalShelter -b -i "$f"; done
+docker run -d --name animal-shelter-db   -e ACCEPT_EULA=Y -e "MSSQL_SA_PASSWORD=<YourStrong!Passw0rd>"   -p 1433:1433 -v "$PWD/sql:/sql"   mcr.microsoft.com/mssql/server:2022-latest
 ```
 
-The scripts run in numeric order: `01_schema` → `02_seed_data` → `03_procedures` → `04_triggers` → `05_computed_columns` → `06_queries`. The [workflow](.github/workflows/build.yml) does the same in a SQL Server 2022 container.
+On an Apple Silicon Mac, turn on *Use Rosetta for x86/amd64 emulation* in Docker Desktop first. The SQL Server image is x86 only.
+
+**2. Create the database and run the scripts in order**
+
+```bash
+SQLCMD="docker exec animal-shelter-db /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P <YourStrong!Passw0rd>"
+$SQLCMD -Q "CREATE DATABASE AnimalShelter"
+for f in sql/*.sql; do $SQLCMD -d AnimalShelter -b -i "/$f"; done
+```
+
+The order is `01_schema` → `02_seed_data` → `03_procedures` → `04_triggers` → `05_computed_columns` → `06_queries`.
+
+**3. Explore**
+
+Connect any SQL client (Azure Data Studio, SSMS, or the VS Code mssql extension) to `localhost,1433` as `sa`. Then try `EXEC GetAvailableAnimals;` or the queries in `06_queries.sql`.
+
+The [CI workflow](.github/workflows/build.yml) runs the same steps on every push.
 
 ## 🧭 Limitations
 
@@ -142,4 +161,4 @@ The scripts run in numeric order: `01_schema` → `02_seed_data` → `03_procedu
 
 ## 💻 Tech stack
 
-SQL Server 2022 · T-SQL · GitHub Actions · Mermaid
+SQL Server 2022 · T-SQL · Docker · GitHub Actions · Mermaid
