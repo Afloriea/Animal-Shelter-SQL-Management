@@ -1,17 +1,10 @@
 -- 06 · Analytical queries
 
-DECLARE @AvgAge INT;
-
--- Calculate Average Age
-SELECT @AvgAge = AVG(Age)
-FROM Animal
-WHERE AdoptionStatus = 'Adopted';
-
--- Query Adoption Statistics
+-- Adoption statistics by animal type
 SELECT
     Type.TypeName AS AnimalType,
     COUNT(AdoptionRecord.AdoptionID) AS AdoptionCount,
-    @AvgAge AS AverageAdoptedAge
+    CAST(AVG(CAST(Animal.Age AS DECIMAL(4, 1))) AS DECIMAL(4, 1)) AS AverageAdoptedAge
 FROM AdoptionRecord
 JOIN Animal ON AdoptionRecord.AnimalID = Animal.AnimalID
 JOIN Type ON Animal.TypeID = Type.TypeID
