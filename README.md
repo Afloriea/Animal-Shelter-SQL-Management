@@ -149,7 +149,7 @@ The order is `01_schema` → `02_seed_data` → `03_procedures` → `04_triggers
 
 **3. Explore**
 
-Connect any SQL client (Azure Data Studio, SSMS, or the VS Code mssql extension) to `localhost,1433` as `sa`. Then try `EXEC GetAvailableAnimals;` or the queries in `06_queries.sql`.
+Connect a SQL client to `localhost,1433` as `sa`. The project was built on macOS with Azure Data Studio; SSMS or the VS Code mssql extension work too. Then try `EXEC GetAvailableAnimals;` or the queries in `06_queries.sql`.
 
 The [CI workflow](.github/workflows/build.yml) runs the same steps on every push.
 
@@ -161,4 +161,4 @@ The [CI workflow](.github/workflows/build.yml) runs the same steps on every push
 
 ## 💻 Tech stack
 
-SQL Server 2022 · T-SQL · Docker · GitHub Actions · Mermaid
+SQL Server 2022 · T-SQL · Docker · Azure Data Studio · GitHub Actions · Mermaid
