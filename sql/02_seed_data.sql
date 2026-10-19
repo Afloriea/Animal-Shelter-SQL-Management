@@ -1,19 +1,13 @@
-CREATE TABLE Type(
-   TypeID   INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,TypeName VARCHAR(3) NOT NULL
-);
+-- 02 · Sample data
+
+-- Type
 INSERT INTO Type(TypeName) VALUES ('Cat');
 INSERT INTO Type(TypeName) VALUES ('Dog');
 INSERT INTO Type(TypeName) VALUES ('Cat');
 INSERT INTO Type(TypeName) VALUES ('Dog');
 INSERT INTO Type(TypeName) VALUES ('Cat');
 
-
-CREATE TABLE Breed(
-   BreedID   INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,BreedName VARCHAR(16) NOT NULL
-  ,TypeID    INTEGER  NOT NULL FOREIGN KEY REFERENCES Type(TypeID)
-);
+-- Breed
 INSERT INTO Breed(BreedName, TypeID) VALUES ('Siamese', 1);
 INSERT INTO Breed(BreedName, TypeID) VALUES ('Labrador', 2);
 INSERT INTO Breed(BreedName, TypeID) VALUES ('Persian', 1);
@@ -25,16 +19,7 @@ INSERT INTO Breed(BreedName, TypeID) VALUES ('Ragdoll', 1);
 INSERT INTO Breed(BreedName, TypeID) VALUES ('Beagle', 2);
 INSERT INTO Breed(BreedName, TypeID) VALUES ('Siberian Husky', 2);
 
-
-CREATE TABLE Animal(
-   AnimalID       INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,AnimalName     VARCHAR(8) NOT NULL
-  ,Species        VARCHAR(3) NOT NULL
-  ,TypeID         INTEGER  NOT NULL FOREIGN KEY REFERENCES Type(TypeID)
-  ,Age            INTEGER  NOT NULL
-  ,Gender         VARCHAR(6) NOT NULL
-  ,AdoptionStatus VARCHAR(9) NOT NULL
-);
+-- Animal
 INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Whiskers', 'Cat', 1, 2, 'Female', 'Available');
 INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Buddy', 'Dog', 2, 3, 'Male', 'Adopted');
 INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Mittens', 'Cat', 1, 1, 'Male', 'Available');
@@ -51,15 +36,7 @@ INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VAL
 INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Lucy', 'Dog', 2, 4, 'Female', 'Available');
 INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Simba', 'Cat', 1, 3, 'Male', 'Available');
 
-
-CREATE TABLE Adopter(
-   AdopterID    INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,FirstName    VARCHAR(255) NOT NULL
-  ,LastName     VARCHAR(255) NOT NULL
-  ,Address      VARCHAR(255) NOT NULL
-  ,Email        VARCHAR(255) NOT NULL
-  ,PhoneNumber  VARCHAR(20) NOT NULL
-);
+-- Adopter
 INSERT INTO Adopter(FirstName,LastName,Address,Email,PhoneNumber) VALUES ('John','Doe','123 Main St','john.doe@example.com','555-1234');
 INSERT INTO Adopter(FirstName,LastName,Address,Email,PhoneNumber) VALUES ('Jane','Smith','456 Oak St','jane.smith@example.com','555-5678');
 INSERT INTO Adopter(FirstName,LastName,Address,Email,PhoneNumber) VALUES ('Robert','Johnson','789 Maple St','robert.johnson@example.com','555-9876');
@@ -76,13 +53,7 @@ INSERT INTO Adopter(FirstName,LastName,Address,Email,PhoneNumber) VALUES ('Noah'
 INSERT INTO Adopter(FirstName,LastName,Address,Email,PhoneNumber) VALUES ('Isabella','Allen','456 Cherry St','isabella.allen@example.com','555-9999');
 INSERT INTO Adopter(FirstName,LastName,Address,Email,PhoneNumber) VALUES ('James','Hall','789 Blueberry St','james.hall@example.com','555-0000');
 
-
-CREATE TABLE AdoptionEvent(
-   EventID      INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,AnimalID     INTEGER  NOT NULL FOREIGN KEY REFERENCES Animal(AnimalID)
-  ,AdopterID    INTEGER  NOT NULL FOREIGN KEY REFERENCES Adopter(AdopterID)
-  ,EventDate    DATE  NOT NULL
-);
+-- AdoptionEvent
 INSERT INTO AdoptionEvent(AnimalID, AdopterID, EventDate) VALUES (2, 1, '2024-01-15');
 INSERT INTO AdoptionEvent(AnimalID, AdopterID, EventDate) VALUES (4, 2, '2024-02-01');
 INSERT INTO AdoptionEvent(AnimalID, AdopterID, EventDate) VALUES (1, 3, '2024-02-10');
@@ -99,13 +70,7 @@ INSERT INTO AdoptionEvent(AnimalID, AdopterID, EventDate) VALUES (15, 13, '2024-
 INSERT INTO AdoptionEvent(AnimalID, AdopterID, EventDate) VALUES (14, 14, '2024-10-12');
 INSERT INTO AdoptionEvent(AnimalID, AdopterID, EventDate) VALUES (6, 15, '2024-11-25');
 
-
-CREATE TABLE AdoptionRecord(
-   AdoptionID   INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,AdopterID    INTEGER  NOT NULL FOREIGN KEY REFERENCES Adopter(AdopterID)
-  ,AnimalID     INTEGER  NOT NULL FOREIGN KEY REFERENCES Animal(AnimalID)
-  ,AdoptionDate DATE  NOT NULL
-);
+-- AdoptionRecord
 INSERT INTO AdoptionRecord(AdopterID, AnimalID, AdoptionDate) VALUES (3, 2, '2024-01-15');
 INSERT INTO AdoptionRecord(AdopterID, AnimalID, AdoptionDate) VALUES (1, 4, '2024-02-01');
 INSERT INTO AdoptionRecord(AdopterID, AnimalID, AdoptionDate) VALUES (5, 1, '2024-02-10');
@@ -122,14 +87,7 @@ INSERT INTO AdoptionRecord(AdopterID, AnimalID, AdoptionDate) VALUES (10, 12, '2
 INSERT INTO AdoptionRecord(AdopterID, AnimalID, AdoptionDate) VALUES (8, 13, '2024-11-25');
 INSERT INTO AdoptionRecord(AdopterID, AnimalID, AdoptionDate) VALUES (6, 14, '2024-12-31');
 
-
-CREATE TABLE AnimalHealthCondition (
-   HealthConditionID   INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,AnimalID            INTEGER  NOT NULL FOREIGN KEY REFERENCES Animal(AnimalID)
-  ,ConditionDescription VARCHAR(255) NOT NULL
-  ,VisitDate           DATE  NOT NULL
-  ,Diagnosis           VARCHAR(255) NOT NULL
-);
+-- AnimalHealthCondition
 INSERT INTO AnimalHealthCondition(AnimalID, ConditionDescription, VisitDate, Diagnosis) VALUES (2, 'Minor injury', '2024-01-15', 'Bruise');
 INSERT INTO AnimalHealthCondition(AnimalID, ConditionDescription, VisitDate, Diagnosis) VALUES (4, 'Upset stomach', '2024-02-01', 'Gastroenteritis');
 INSERT INTO AnimalHealthCondition(AnimalID, ConditionDescription, VisitDate, Diagnosis) VALUES (1, 'Respiratory issues', '2024-02-10', 'Cough');
@@ -141,11 +99,7 @@ INSERT INTO AnimalHealthCondition(AnimalID, ConditionDescription, VisitDate, Dia
 INSERT INTO AnimalHealthCondition(AnimalID, ConditionDescription, VisitDate, Diagnosis) VALUES (13, 'Urinary tract infection', '2024-06-15', 'UTI');
 INSERT INTO AnimalHealthCondition(AnimalID, ConditionDescription, VisitDate, Diagnosis) VALUES (15, 'Obesity', '2024-07-02', 'Weight management');
 
-
-CREATE TABLE Toy (
-   ToyID   INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,ToyName VARCHAR(255) NOT NULL
-);
+-- Toy
 INSERT INTO Toy(ToyName) VALUES ('Ball');
 INSERT INTO Toy(ToyName) VALUES ('Chew Toy');
 INSERT INTO Toy(ToyName) VALUES ('Feather Wand');
@@ -162,12 +116,7 @@ INSERT INTO Toy(ToyName) VALUES ('Plush Mouse');
 INSERT INTO Toy(ToyName) VALUES ('Tennis Ball');
 INSERT INTO Toy(ToyName) VALUES ('Rope Ball');
 
-
-CREATE TABLE AnimalToyAssignment (
-   AssignmentID   INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,AnimalID       INTEGER  NOT NULL FOREIGN KEY REFERENCES Animal(AnimalID)
-  ,ToyID          INTEGER  NOT NULL FOREIGN KEY REFERENCES Toy(ToyID)
-);
+-- AnimalToyAssignment
 INSERT INTO AnimalToyAssignment(AnimalID, ToyID) VALUES (2, 1);
 INSERT INTO AnimalToyAssignment(AnimalID, ToyID) VALUES (4, 5);
 INSERT INTO AnimalToyAssignment(AnimalID, ToyID) VALUES (1, 2);
@@ -184,13 +133,7 @@ INSERT INTO AnimalToyAssignment(AnimalID, ToyID) VALUES (10, 13);
 INSERT INTO AnimalToyAssignment(AnimalID, ToyID) VALUES (12, 15);
 INSERT INTO AnimalToyAssignment(AnimalID, ToyID) VALUES (14, 14);
 
-
-CREATE TABLE Staff (
-   StaffID        INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,StaffName      VARCHAR(255) NOT NULL
-  ,Role           VARCHAR(255) NOT NULL
-  ,ContactNumber VARCHAR(20) NOT NULL
-);
+-- Staff
 INSERT INTO Staff(StaffName, Role, ContactNumber) VALUES ('Dr. Smith', 'Veterinarian', '555-1234');
 INSERT INTO Staff(StaffName, Role, ContactNumber) VALUES ('Nurse Johnson', 'Veterinary Nurse', '555-5678');
 INSERT INTO Staff(StaffName, Role, ContactNumber) VALUES ('Dr. Williams', 'Veterinarian', '555-9876');
@@ -207,14 +150,7 @@ INSERT INTO Staff(StaffName, Role, ContactNumber) VALUES ('Dr. Allen', 'Veterina
 INSERT INTO Staff(StaffName, Role, ContactNumber) VALUES ('Nurse Hall', 'Veterinary Nurse', '555-9999');
 INSERT INTO Staff(StaffName, Role, ContactNumber) VALUES ('Dr. Thomas', 'Veterinarian', '555-0000');
 
-
-CREATE TABLE VetVisit (
-   VetVisitID   INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,AnimalID     INTEGER  NOT NULL FOREIGN KEY REFERENCES Animal(AnimalID)
-  ,StaffID      INTEGER  NOT NULL FOREIGN KEY REFERENCES Staff(StaffID)
-  ,VisitDate    DATE  NOT NULL
-  ,Diagnosis    VARCHAR(255) NOT NULL
-);
+-- VetVisit
 INSERT INTO VetVisit(AnimalID, StaffID, VisitDate, Diagnosis) VALUES (2, 5, '2024-01-15', 'Routine Checkup');
 INSERT INTO VetVisit(AnimalID, StaffID, VisitDate, Diagnosis) VALUES (4, 4, '2024-02-01', 'Digestive Issues');
 INSERT INTO VetVisit(AnimalID, StaffID, VisitDate, Diagnosis) VALUES (1, 3, '2024-02-10', 'Respiratory Infection');
@@ -231,12 +167,7 @@ INSERT INTO VetVisit(AnimalID, StaffID, VisitDate, Diagnosis) VALUES (10, 11, '2
 INSERT INTO VetVisit(AnimalID, StaffID, VisitDate, Diagnosis) VALUES (12, 13, '2024-11-25', 'Arthritis');
 INSERT INTO VetVisit(AnimalID, StaffID, VisitDate, Diagnosis) VALUES (14, 15, '2024-12-31', 'Heartworm Disease');
 
-
-CREATE TABLE MedicalProcedure (
-   MedicalProcedureID          INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,ProcedureDescription VARCHAR(255) NOT NULL
-  ,ProcedureName        VARCHAR(255) NOT NULL
-);
+-- MedicalProcedure
 INSERT INTO MedicalProcedure(ProcedureDescription, ProcedureName) VALUES ('Routine checkup', 'Checkup');
 INSERT INTO MedicalProcedure(ProcedureDescription, ProcedureName) VALUES ('Dental cleaning', 'Dental Cleaning');
 INSERT INTO MedicalProcedure(ProcedureDescription, ProcedureName) VALUES ('X-ray examination', 'X-ray');
@@ -253,15 +184,7 @@ INSERT INTO MedicalProcedure(ProcedureDescription, ProcedureName) VALUES ('MRI s
 INSERT INTO MedicalProcedure(ProcedureDescription, ProcedureName) VALUES ('Neuter surgery', 'Neuter Surgery');
 INSERT INTO MedicalProcedure(ProcedureDescription, ProcedureName) VALUES ('Heartworm treatment', 'Heartworm Treatment');
 
-
-CREATE TABLE VisitProcedure (
-   VisitProcedureID   INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,VetVisitID         INTEGER  NOT NULL FOREIGN KEY REFERENCES VetVisit(VetVisitID)
-  ,ProcedureID        INTEGER  NOT NULL FOREIGN KEY REFERENCES MedicalProcedure(MedicalProcedureID)
-  ,StaffID            INTEGER  NOT NULL FOREIGN KEY REFERENCES Staff(StaffID)
-  ,ProcedureDate      DATE  NOT NULL
-  ,TreatmentDescription VARCHAR(255) NOT NULL
-);
+-- VisitProcedure
 INSERT INTO VisitProcedure(VetVisitID, ProcedureID, StaffID, ProcedureDate, TreatmentDescription) VALUES (1, 1, 5, '2024-01-15', 'Administered Vaccination');
 INSERT INTO VisitProcedure(VetVisitID, ProcedureID, StaffID, ProcedureDate, TreatmentDescription) VALUES (2, 2, 4, '2024-02-01', 'Dental Cleaning');
 INSERT INTO VisitProcedure(VetVisitID, ProcedureID, StaffID, ProcedureDate, TreatmentDescription) VALUES (3, 3, 3, '2024-02-10', 'X-ray Examination');
@@ -277,260 +200,3 @@ INSERT INTO VisitProcedure(VetVisitID, ProcedureID, StaffID, ProcedureDate, Trea
 INSERT INTO VisitProcedure(VetVisitID, ProcedureID, StaffID, ProcedureDate, TreatmentDescription) VALUES (10, 15, 11, '2024-10-12', 'MRI Scan');
 INSERT INTO VisitProcedure(VetVisitID, ProcedureID, StaffID, ProcedureDate, TreatmentDescription) VALUES (12, 9, 10, '2024-11-25', 'Neuter Surgery');
 INSERT INTO VisitProcedure(VetVisitID, ProcedureID, StaffID, ProcedureDate, TreatmentDescription) VALUES (14, 7, 9, '2024-12-31', 'Heartworm Treatment');
-
---------------------------------
-
-/*
--- With this week’s delivery of a final bundle of eight coded database objects (two each of stored procedures, business rules, computed columns, and complex queries), 
--- your database is nearing its completion; this is a major milestone to be celebrated!
-
--- Grading will be based on the application of industry best practices presented in lectures and readings as well as degree of difficulty. 
--- There are eight objects worth 2.5 points each.
-*/
-
-/*
-Q1  Write the SQL code to create two (2) stored procedures to populate transactional tables.
-*/
-CREATE PROCEDURE SendAdoptionNotification
-    @AdopterID INT,
-    @AnimalID INT,
-    @AdoptionDate DATE
-AS
-BEGIN
-    DECLARE @AdopterName VARCHAR(255);
-    DECLARE @AnimalName VARCHAR(255);
-    DECLARE @Email VARCHAR(255);
-    DECLARE @NotificationMessage NVARCHAR(1000);
-
-    -- Retrieve adopter information
-    SELECT @AdopterName = CONCAT(FirstName, ' ', LastName), @Email = Email
-    FROM Adopter
-    WHERE AdopterID = @AdopterID;
-
-    -- Retrieve animal information
-    SELECT @AnimalName = AnimalName
-    FROM Animal
-    WHERE AnimalID = @AnimalID;
-
-    -- Construct notification message
-    SET @NotificationMessage = N'Dear ' + @AdopterName + ',
-    Congratulations! You have successfully adopted ' + @AnimalName +
-    '. The adoption took place on ' + CONVERT(NVARCHAR, @AdoptionDate, 120) + '. Thank you for choosing us!';
-
-    PRINT @NotificationMessage;
-END;
-
-DECLARE @AdopterID INT = 1;
-DECLARE @AnimalID INT = 2;
-DECLARE @AdoptionDate DATE = '2024-01-15';
-
-EXEC SendAdoptionNotification
-    @AdopterID = @AdopterID,
-    @AnimalID = @AnimalID,
-    @AdoptionDate = @AdoptionDate;
-
-
-CREATE PROCEDURE GetAvailableAnimals
-AS
-BEGIN
-    SELECT
-        A.AnimalID,
-        A.AnimalName,
-        A.Species,
-        T.TypeName,
-        B.BreedName,
-        A.Age,
-        A.Gender
-    FROM
-        Animal A
-    INNER JOIN
-        Type T ON A.TypeID = T.TypeID
-    LEFT JOIN
-        Breed B ON A.TypeID = B.TypeID
-    WHERE
-        A.AdoptionStatus = 'Available';
-END;
-
--- Execute the GetAvailableAnimals procedure
-EXEC GetAvailableAnimals;
-
-
-/*
-Q2  Write the SQL code to create two (2) triggers
-*/
--- Create a trigger to check if the adopted animal is either a dog or a cat
-CREATE TRIGGER CheckAdoptedAnimal
-ON AdoptionEvent
-AFTER INSERT
-AS
-BEGIN
-    DECLARE @AnimalTypeID INT;
-
-    -- Get the TypeID of the adopted animal
-    SELECT @AnimalTypeID = a.TypeID
-    FROM Animal a
-    INNER JOIN inserted i ON a.AnimalID = i.AnimalID;
-
-    -- Check if the adopted animal is neither a dog nor a cat
-    IF @AnimalTypeID NOT IN (SELECT TypeID FROM Type WHERE TypeName IN ('Dog', 'Cat'))
-    BEGIN
-        -- Rollback the transaction to prevent the adoption
-        ROLLBACK;
-        
-        -- Print an error message
-        PRINT 'Error: Only dogs and cats are available for adoption in this shelter.';
-    END
-END;
-
--- Create Trigger to Update Animal Adoption Status
-CREATE TRIGGER AfterInsertAdoptionEvent
-ON AdoptionEvent
-AFTER INSERT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Update Animal Adoption Status
-    UPDATE Animal
-    SET AdoptionStatus = 'Adopted'
-    FROM Animal
-    INNER JOIN inserted ON Animal.AnimalID = inserted.AnimalID;
-END;
-
-
--- Create a trigger that updates the AdoptionStatus when a new adoption event is recorded
-CREATE TRIGGER UpdateAdoptionStatus
-ON AdoptionEvent
-AFTER INSERT
-AS
-BEGIN
-    -- Update the AdoptionStatus of animals involved in the new adoption events
-    UPDATE Animal
-    SET AdoptionStatus = 'Adopted'
-    FROM Animal
-    INNER JOIN inserted ON Animal.AnimalID = inserted.AnimalID;
-END;
-
--- Insert a new adoption event to trigger the UpdateAdoptionStatus trigger
-INSERT INTO AdoptionEvent(AnimalID, AdopterID, EventDate)
-VALUES (3, 1, '2024-03-15');
-
--- Check the updated AdoptionStatus of the animal
-SELECT AnimalID, AdoptionStatus
-FROM Animal
-WHERE AnimalID = 3;
-
-
-/*
-Q3  Write the SQL code to create two (2) computed columns
-*/
--- Add Computed Column for Full Name
-ALTER TABLE Animal
-ADD FullName AS (CONCAT(AnimalName, ' the ', Species));
-
--- Retrieve data with the new computed column
-SELECT AnimalID, AnimalName, Species, FullName
-FROM Animal;
-
-
--- Add Computed Column for Senior Flag
-ALTER TABLE Animal
-ADD IsSenior AS (CASE WHEN Age >= 8 THEN 'Yes' ELSE 'No' END);
-
--- Retrieve data with the new computed column
-SELECT AnimalID, AnimalName, Age, IsSenior
-FROM Animal;
-
-
-/*
-Q4  Write the SQL code to create two (2) different complex queries.
-*/
-DECLARE @AvgAge INT;
-
--- Calculate Average Age
-SELECT @AvgAge = AVG(Age)
-FROM Animal
-WHERE AdoptionStatus = 'Adopted';
-
--- Query Adoption Statistics
-SELECT
-    Type.TypeName AS AnimalType,
-    COUNT(AdoptionRecord.AdoptionID) AS AdoptionCount,
-    @AvgAge AS AverageAdoptedAge
-FROM AdoptionRecord
-JOIN Animal ON AdoptionRecord.AnimalID = Animal.AnimalID
-JOIN Type ON Animal.TypeID = Type.TypeID
-GROUP BY Type.TypeName
-ORDER BY AdoptionCount DESC;
-
--- Subquery to Get Most Severe Health Condition
-WITH MostSevereCondition AS (
-    SELECT
-        AnimalID,
-        Diagnosis,
-        COUNT(*) AS ConditionCount
-    FROM AnimalHealthCondition
-    GROUP BY AnimalID, Diagnosis
-    ORDER BY ConditionCount DESC
-    OFFSET 0 ROWS FETCH NEXT 1 ROW ONLY
-)
-
--- Main Query
-SELECT
-    Animal.AnimalName,
-    AnimalHealthCondition.Diagnosis AS MostSevereCondition,
-    MostSevereCondition.ConditionCount
-FROM Animal
-JOIN AnimalHealthCondition ON Animal.AnimalID = AnimalHealthCondition.AnimalID
-JOIN MostSevereCondition ON AnimalHealthCondition.AnimalID = MostSevereCondition.AnimalID;
-
-
--- Complex query with joins
-SELECT
-    A.AnimalID,
-    A.AnimalName,
-    A.Species,
-    COUNT(VV.VetVisitID) AS TotalVisits,
-    AVG(A.Age) AS AverageAgeDuringVisits,
-    MAX(VV.VisitDate) AS MostRecentVisitDate,
-    S.StaffName AS MostRecentVisitStaff
-FROM
-    Animal A
-JOIN
-    VetVisit VV ON A.AnimalID = VV.AnimalID
-JOIN
-    Staff S ON VV.StaffID = S.StaffID
-WHERE
-    A.AdoptionStatus = 'Adopted'
-GROUP BY
-    A.AnimalID, A.AnimalName, A.Species, S.StaffName
-ORDER BY
-    MostRecentVisitDate DESC;
-
--- Common Table Expression (CTE) for Veterinary Visits
-WITH VetVisitInfo AS (
-    SELECT
-        A.AnimalID,
-        A.AnimalName,
-        A.Species,
-        COUNT(VV.VetVisitID) AS TotalVisits,
-        AVG(A.Age) AS AverageAgeDuringVisits,
-        MAX(VV.VisitDate) AS MostRecentVisitDate,
-        S.StaffName AS MostRecentVisitStaff
-    FROM
-        Animal A
-    JOIN
-        VetVisit VV ON A.AnimalID = VV.AnimalID
-    JOIN
-        Staff S ON VV.StaffID = S.StaffID
-    WHERE
-        A.AdoptionStatus = 'Adopted'
-    GROUP BY
-        A.AnimalID, A.AnimalName, A.Species, S.StaffName
-)
-
--- Query using the CTE
-SELECT *
-FROM VetVisitInfo
-ORDER BY MostRecentVisitDate DESC;
-
