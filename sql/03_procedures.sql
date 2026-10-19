@@ -1,5 +1,6 @@
 -- 03 · Stored procedures
 
+GO
 CREATE PROCEDURE SendAdoptionNotification
     @AdopterID INT,
     @AnimalID INT,
@@ -28,6 +29,7 @@ BEGIN
 
     PRINT @NotificationMessage;
 END;
+GO
 
 DECLARE @AdopterID INT = 1;
 DECLARE @AnimalID INT = 2;
@@ -39,6 +41,7 @@ EXEC SendAdoptionNotification
     @AdoptionDate = @AdoptionDate;
 
 
+GO
 CREATE PROCEDURE GetAvailableAnimals
 AS
 BEGIN
@@ -59,6 +62,7 @@ BEGIN
     WHERE
         A.AdoptionStatus = 'Available';
 END;
+GO
 
 -- Execute the GetAvailableAnimals procedure
 EXEC GetAvailableAnimals;

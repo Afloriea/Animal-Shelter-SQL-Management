@@ -3,6 +3,7 @@
 -- Add Computed Column for Full Name
 ALTER TABLE Animal
 ADD FullName AS (CONCAT(AnimalName, ' the ', Species));
+GO
 
 -- Retrieve data with the new computed column
 SELECT AnimalID, AnimalName, Species, FullName
@@ -12,6 +13,7 @@ FROM Animal;
 -- Add Computed Column for Senior Flag
 ALTER TABLE Animal
 ADD IsSenior AS (CASE WHEN Age >= 8 THEN 'Yes' ELSE 'No' END);
+GO
 
 -- Retrieve data with the new computed column
 SELECT AnimalID, AnimalName, Age, IsSenior
