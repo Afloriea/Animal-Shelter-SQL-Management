@@ -1,5 +1,6 @@
 -- 04 · Triggers (business rules on AdoptionEvent)
 
+GO
 -- Create a trigger to check if the adopted animal is either a dog or a cat
 CREATE TRIGGER CheckAdoptedAnimal
 ON AdoptionEvent
@@ -24,6 +25,7 @@ BEGIN
     END
 END;
 
+GO
 -- Create Trigger to Update Animal Adoption Status
 CREATE TRIGGER AfterInsertAdoptionEvent
 ON AdoptionEvent
@@ -40,6 +42,7 @@ BEGIN
 END;
 
 
+GO
 -- Create a trigger that updates the AdoptionStatus when a new adoption event is recorded
 CREATE TRIGGER UpdateAdoptionStatus
 ON AdoptionEvent
@@ -52,6 +55,7 @@ BEGIN
     FROM Animal
     INNER JOIN inserted ON Animal.AnimalID = inserted.AnimalID;
 END;
+GO
 
 -- Insert a new adoption event to trigger the UpdateAdoptionStatus trigger
 INSERT INTO AdoptionEvent(AnimalID, AdopterID, EventDate)
