@@ -2,7 +2,7 @@
 
 CREATE TABLE Type(
    TypeID   INTEGER  NOT NULL PRIMARY KEY IDENTITY(1,1)
-  ,TypeName VARCHAR(3) NOT NULL
+  ,TypeName VARCHAR(3) NOT NULL UNIQUE
 );
 
 CREATE TABLE Breed(
@@ -16,6 +16,7 @@ CREATE TABLE Animal(
   ,AnimalName     VARCHAR(8) NOT NULL
   ,Species        VARCHAR(3) NOT NULL
   ,TypeID         INTEGER  NOT NULL FOREIGN KEY REFERENCES Type(TypeID)
+  ,BreedID        INTEGER  NOT NULL FOREIGN KEY REFERENCES Breed(BreedID)
   ,Age            INTEGER  NOT NULL
   ,Gender         VARCHAR(6) NOT NULL
   ,AdoptionStatus VARCHAR(9) NOT NULL

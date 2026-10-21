@@ -3,9 +3,6 @@
 -- Type
 INSERT INTO Type(TypeName) VALUES ('Cat');
 INSERT INTO Type(TypeName) VALUES ('Dog');
-INSERT INTO Type(TypeName) VALUES ('Cat');
-INSERT INTO Type(TypeName) VALUES ('Dog');
-INSERT INTO Type(TypeName) VALUES ('Cat');
 
 -- Breed
 INSERT INTO Breed(BreedName, TypeID) VALUES ('Siamese', 1);
@@ -20,21 +17,21 @@ INSERT INTO Breed(BreedName, TypeID) VALUES ('Beagle', 2);
 INSERT INTO Breed(BreedName, TypeID) VALUES ('Siberian Husky', 2);
 
 -- Animal
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Whiskers', 'Cat', 1, 2, 'Female', 'Available');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Buddy', 'Dog', 2, 3, 'Male', 'Adopted');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Mittens', 'Cat', 1, 1, 'Male', 'Available');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Luna', 'Dog', 2, 2, 'Female', 'Available');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Oscar', 'Cat', 1, 4, 'Male', 'Adopted');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Max', 'Dog', 2, 1, 'Male', 'Available');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Bella', 'Cat', 1, 3, 'Female', 'Adopted');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Charlie', 'Dog', 2, 5, 'Male', 'Available');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Sophie', 'Cat', 1, 2, 'Female', 'Available');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Rocky', 'Dog', 2, 4, 'Male', 'Adopted');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Cleo', 'Cat', 1, 1, 'Female', 'Available');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Teddy', 'Dog', 2, 3, 'Male', 'Available');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Milo', 'Cat', 1, 2, 'Male', 'Adopted');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Lucy', 'Dog', 2, 4, 'Female', 'Available');
-INSERT INTO Animal(AnimalName, Species, TypeID, Age, Gender, AdoptionStatus) VALUES ('Simba', 'Cat', 1, 3, 'Male', 'Available');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Whiskers', 'Cat', 1, 1, 2, 'Female', 'Available');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Buddy', 'Dog', 2, 2, 3, 'Male', 'Adopted');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Mittens', 'Cat', 1, 3, 1, 'Male', 'Available');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Luna', 'Dog', 2, 4, 2, 'Female', 'Available');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Oscar', 'Cat', 1, 5, 4, 'Male', 'Adopted');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Max', 'Dog', 2, 7, 1, 'Male', 'Available');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Bella', 'Cat', 1, 6, 3, 'Female', 'Adopted');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Charlie', 'Dog', 2, 9, 5, 'Male', 'Available');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Sophie', 'Cat', 1, 8, 2, 'Female', 'Available');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Rocky', 'Dog', 2, 10, 4, 'Male', 'Adopted');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Cleo', 'Cat', 1, 1, 1, 'Female', 'Available');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Teddy', 'Dog', 2, 2, 3, 'Male', 'Available');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Milo', 'Cat', 1, 3, 2, 'Male', 'Adopted');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Lucy', 'Dog', 2, 4, 4, 'Female', 'Available');
+INSERT INTO Animal(AnimalName, Species, TypeID, BreedID, Age, Gender, AdoptionStatus) VALUES ('Simba', 'Cat', 1, 5, 3, 'Male', 'Available');
 
 -- Adopter
 INSERT INTO Adopter(FirstName,LastName,Address,Email,PhoneNumber) VALUES ('John','Doe','123 Main St','john.doe@example.com','555-1234');
