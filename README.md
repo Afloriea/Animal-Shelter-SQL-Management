@@ -1,73 +1,164 @@
-## 📖 Overview
-The **Animal Shelter Management System** is a SQL-based database project developed to streamline animal care, adoption tracking, staff management, and veterinary operations. This project was designed to enhance the efficiency, accuracy, and transparency of shelter operations while providing a scalable foundation for future analytics and reporting.
+# Animal Shelter Management Database
+
+[![Build database](https://github.com/Afloriea/Animal-Shelter-SQL-Management/actions/workflows/build.yml/badge.svg)](https://github.com/Afloriea/Animal-Shelter-SQL-Management/actions/workflows/build.yml)
+
+A relational database for running an animal shelter on SQL Server (run locally in Docker): animal profiles, adopters, adoptions, health records, enrichment toys, staff and veterinary care. Business rules are enforced in the database with triggers, common workflows are wrapped in stored procedures, and every push rebuilds the whole database on SQL Server 2022 in GitHub Actions.
+
+**Skills shown:** relational modelling · T-SQL · stored procedures · triggers · computed columns · CTEs and window functions · Docker · CI for database scripts
 
 ---
 
-## 🎯 Objectives
-- Build a **centralized relational database** for animal shelter operations.  
-- Automate adoption tracking and improve record management.  
-- Store and retrieve veterinary visit details for animals.  
-- Enable efficient staff and resource management.  
-- Enforce **business rules and relationships** for data integrity.  
+## 🎯 Problem
+
+Shelter data tends to live in spreadsheets: which animals are available, who adopted whom, which vet saw which animal and what was done. Records drift out of sync and simple questions take manual work. This project puts that data in one schema with the rules built in, so an animal can't be adopted twice and adoption status updates itself.
 
 ---
 
-## 🗂 Database Entities
-| Entity                    | Description                                                           |
-|---------------------------|-----------------------------------------------------------------------|
-| **Animal**                | Stores details about each animal, including breed, age, and status.   |
-| **Adopter**               | Records adopter details for responsible tracking.                     |
-| **Adoption Record**       | Tracks completed adoptions and related data.                          |
-| **Adoption Event**        | Logs adoption events for operational visibility.                      |
-| **Animal Breed**          | Stores breed information associated with animals.                     |
-| **Animal Health Condition** | Manages medical conditions and diagnoses.                           |
-| **Vet Visit**             | Logs veterinary visits and associated staff.                          |
-| **Procedure Treatment**   | Records procedures and treatments.                                    |
-| **Animal Toy & Assignment** | Tracks animal enrichment through toy assignments.                  |
-| **Staff**                 | Records staff details, roles, and contact info.                       |
+## 🗂 Data model
+
+13 tables in five areas:
+
+| Area | Tables |
+|---|---|
+| **Animals** | `Animal`, `Type`, `Breed` |
+| **Adoption** | `Adopter`, `AdoptionEvent`, `AdoptionRecord` |
+| **Health** | `AnimalHealthCondition`, `VetVisit`, `MedicalProcedure`, `VisitProcedure` |
+| **Staff** | `Staff` |
+| **Enrichment** | `Toy`, `AnimalToyAssignment` |
+
+```mermaid
+erDiagram
+    Type ||--o{ Breed : has
+    Type ||--o{ Animal : classifies
+    Breed ||--o{ Animal : "breed of"
+    Animal ||--o{ AdoptionEvent : ""
+    Adopter ||--o{ AdoptionEvent : ""
+    Animal ||--o{ AdoptionRecord : ""
+    Adopter ||--o{ AdoptionRecord : ""
+    Animal ||--o{ AnimalHealthCondition : ""
+    Animal ||--o{ VetVisit : ""
+    Staff ||--o{ VetVisit : performs
+    VetVisit ||--o{ VisitProcedure : includes
+    MedicalProcedure ||--o{ VisitProcedure : ""
+    Staff ||--o{ VisitProcedure : performs
+    Animal ||--o{ AnimalToyAssignment : ""
+    Toy ||--o{ AnimalToyAssignment : ""
+```
+
+The original ERD from the project is in [`docs/erd.png`](docs/erd.png). It predates `Animal.BreedID`, which was added later (see [Fixes after review](#-fixes-after-review)).
 
 ---
 
-## 🔑 Relationships
-- **Adopter → Adoption Record**: One-to-Many  
-- **Animal → Adoption Record**: One-to-Many  
-- **Animal → Vet Visit**: One-to-Many  
-- **Staff → Vet Visit**: One-to-Many  
-- **Vet Visit → Procedure Treatment**: One-to-Many  
+## 🛠 Database objects
+
+### Stored procedures
+- **`SendAdoptionNotification`** builds the confirmation message for an adoption from the adopter's and animal's records.
+- **`GetAvailableAnimals`** lists every animal that is available for adoption, with its type and breed.
+
+### Triggers on `AdoptionEvent`
+- **`CheckAdoptedAnimal`** rejects an adoption if the animal isn't a dog or cat, or has already been adopted. It is set-based, so multi-row inserts are checked row by row. It is set to fire first so it sees the status before it changes.
+- **`UpdateAdoptionStatus`** marks the animal as `Adopted` once the event is recorded.
+
+### Computed columns on `Animal`
+- **`FullName`**, for example "Whiskers the Cat".
+- **`IsSenior`**: `Yes` when the animal is 8 or older.
+
+### Analytical queries
+- Adoption count and average age by animal type
+- Latest health condition for each animal (`ROW_NUMBER`)
+- Vet history for adopted animals: visit count, latest visit, latest diagnosis and staff member (CTE + window functions)
 
 ---
 
-## 🖼 Entity-Relationship Diagram (ERD)
-<img width="1449" height="842" alt="截圖 2025-08-05 上午4 46 41" src="https://github.com/user-attachments/assets/53a3aa6d-f7b0-483c-bbb1-d59eda75633a" />
+## 📊 Sample output
+
+These results come from the CI run on SQL Server 2022 against the sample data.
+
+**Available animals** (`EXEC GetAvailableAnimals`)
+
+| AnimalID | Name | Type | Breed | Age | Gender |
+|---|---|---|---|---|---|
+| 1 | Whiskers | Cat | Siamese | 2 | Female |
+| 3 | Mittens | Cat | Persian | 1 | Male |
+| 4 | Luna | Dog | Golden Retriever | 2 | Female |
+| 6 | Max | Dog | German Shepherd | 1 | Male |
+| … | | | | | |
+
+10 rows in total.
+
+**Business rule in action**
+
+```
+INSERT INTO AdoptionEvent(AnimalID, AdopterID, EventDate) VALUES (3, 2, '2024-03-20');
+Rejected: This animal has already been adopted.
+```
+
+**Adoptions by type**
+
+| AnimalType | AdoptionCount | AverageAdoptedAge |
+|---|---|---|
+| Cat | 8 | 2.3 |
+| Dog | 7 | 3.1 |
+
+**Vet history of adopted animals** (top 3)
+
+| Animal | Age | Visits | Latest visit | Diagnosis | Staff |
+|---|---|---|---|---|---|
+| Rocky (Dog) | 4 | 1 | 2024-10-12 | Dental Surgery | Dr. Harris |
+| Milo (Cat) | 2 | 1 | 2024-06-15 | Gastric Ulcer | Nurse Moore |
+| Bella (Cat) | 3 | 1 | 2024-03-12 | Skin Allergy | Dr. Taylor |
 
 ---
 
-## 🛠 Features
-### Stored Procedures
-- `SendAdoptionNotification`: Automatically generates adoption confirmation notifications.
-- `GetAvailableAnimals`: Retrieves a list of animals available for adoption.
+## 🔧 Fixes after review
 
-### Triggers
-- `CheckAdoptedAnimal`: Ensures only eligible animals (e.g., dogs or cats) can be adopted.
-- `UpdateAdoptionStatus`: Automatically updates animal adoption status after an event.
+Running the original script on a clean SQL Server instance in CI surfaced several problems, each fixed in its own pull request:
 
-### Computed Columns
-- `FullName`: Concatenates animal name and species.
-- `IsSenior`: Flags animals as "Senior" based on age.
-
-### Complex Queries
-- Adoption statistics by species with average age of adopted animals.
-- CTE for analyzing veterinary visits and staff assignments.
+| Problem | Effect | Fix |
+|---|---|---|
+| No `GO` between procedures and triggers | Script stopped with Msg 134 and could not run end to end | Batch separators |
+| `Animal` had no breed, so the procedure joined `Breed` on `TypeID` | Each available animal was listed 5 times (50 rows for 10 animals) | `Animal.BreedID` foreign key |
+| `Type` seeded Cat/Dog five times | Duplicate lookup rows | Two rows plus `UNIQUE` |
+| Trigger read one row into a variable, and a second trigger duplicated the first | Multi-row inserts only partly checked; repeat adoptions allowed | Set-based check with `THROW`, duplicate removed |
+| Overall average age stored in an `INT` | Both types showed the same, truncated value (2) | Per-type `AVG` as a decimal |
+| "Most severe condition" kept one row overall | Returned a single animal | Latest condition per animal with `ROW_NUMBER` |
 
 ---
 
-## 💻 Tech Stack
-- **Database**: SQL Server  
-- **Language**: T-SQL  
-- **Tools**:  
-  - ERD modeling  
-  - Stored procedures  
-  - Triggers  
-  - CTE queries  
+## ▶️ Run it locally
 
----
+SQL Server runs in Docker, so nothing needs to be installed except Docker Desktop.
+
+**1. Start SQL Server 2022 in a container**
+
+```bash
+docker run -d --name animal-shelter-db   -e ACCEPT_EULA=Y -e "MSSQL_SA_PASSWORD=<YourStrong!Passw0rd>"   -p 1433:1433 -v "$PWD/sql:/sql"   mcr.microsoft.com/mssql/server:2022-latest
+```
+
+On an Apple Silicon Mac, turn on *Use Rosetta for x86/amd64 emulation* in Docker Desktop first. The SQL Server image is x86 only.
+
+**2. Create the database and run the scripts in order**
+
+```bash
+SQLCMD="docker exec animal-shelter-db /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P <YourStrong!Passw0rd>"
+$SQLCMD -Q "CREATE DATABASE AnimalShelter"
+for f in sql/*.sql; do $SQLCMD -d AnimalShelter -b -i "/$f"; done
+```
+
+The order is `01_schema` → `02_seed_data` → `03_procedures` → `04_triggers` → `05_computed_columns` → `06_queries`.
+
+**3. Explore**
+
+Connect a SQL client to `localhost,1433` as `sa`. The project was built on macOS with Azure Data Studio; SSMS or the VS Code mssql extension work too. Then try `EXEC GetAvailableAnimals;` or the queries in `06_queries.sql`.
+
+The [CI workflow](.github/workflows/build.yml) runs the same steps on every push.
+
+## 🧭 Limitations
+
+- `AdoptionEvent` and `AdoptionRecord` overlap. In the sample data they don't always agree with each other or with `Animal.AdoptionStatus`. Merging them into one table, with the status derived from it, is the next step.
+- `SendAdoptionNotification` only prints the message. A real shelter would queue an email.
+- The sample data is small and synthetic: 15 animals, 15 adopters, 15 staff.
+
+## 💻 Tech stack
+
+SQL Server 2022 · T-SQL · Docker · Azure Data Studio · GitHub Actions · Mermaid
