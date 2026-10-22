@@ -26,6 +26,15 @@ Shelter data tends to live in spreadsheets: which animals are available, who ado
 | **Staff** | `Staff` |
 | **Enrichment** | `Toy`, `AnimalToyAssignment` |
 
+### Entity-Relationship Diagram (ERD)
+
+![Animal Shelter ERD](docs/erd.png)
+
+The ERD was drawn before `Animal.BreedID` was added (see [Fixes after review](#-fixes-after-review)). The diagram below reflects the current schema.
+
+<details>
+<summary>Current schema as a diagram (includes <code>Animal.BreedID</code>)</summary>
+
 ```mermaid
 erDiagram
     Type ||--o{ Breed : has
@@ -45,7 +54,7 @@ erDiagram
     Toy ||--o{ AnimalToyAssignment : ""
 ```
 
-The original ERD from the project is in [`docs/erd.png`](docs/erd.png). It predates `Animal.BreedID`, which was added later (see [Fixes after review](#-fixes-after-review)).
+</details>
 
 ---
 
