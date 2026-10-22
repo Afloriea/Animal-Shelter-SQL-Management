@@ -1,90 +1,61 @@
 -- 06 · Analytical queries
 
-DECLARE @AvgAge INT;
-
--- Calculate Average Age
-SELECT @AvgAge = AVG(Age)
-FROM Animal
-WHERE AdoptionStatus = 'Adopted';
-
--- Query Adoption Statistics
+-- Adoption statistics by animal type
 SELECT
     Type.TypeName AS AnimalType,
     COUNT(AdoptionRecord.AdoptionID) AS AdoptionCount,
-    @AvgAge AS AverageAdoptedAge
+    CAST(AVG(CAST(Animal.Age AS DECIMAL(4, 1))) AS DECIMAL(4, 1)) AS AverageAdoptedAge
 FROM AdoptionRecord
 JOIN Animal ON AdoptionRecord.AnimalID = Animal.AnimalID
 JOIN Type ON Animal.TypeID = Type.TypeID
 GROUP BY Type.TypeName
 ORDER BY AdoptionCount DESC;
 
--- Subquery to Get Most Severe Health Condition
-WITH MostSevereCondition AS (
+-- Latest health condition on record for each animal
+WITH RankedConditions AS (
     SELECT
         AnimalID,
+        ConditionDescription,
         Diagnosis,
-        COUNT(*) AS ConditionCount
+        VisitDate,
+        ROW_NUMBER() OVER (PARTITION BY AnimalID ORDER BY VisitDate DESC) AS rn
     FROM AnimalHealthCondition
-    GROUP BY AnimalID, Diagnosis
-    ORDER BY ConditionCount DESC
-    OFFSET 0 ROWS FETCH NEXT 1 ROW ONLY
 )
-
--- Main Query
 SELECT
     Animal.AnimalName,
-    AnimalHealthCondition.Diagnosis AS MostSevereCondition,
-    MostSevereCondition.ConditionCount
-FROM Animal
-JOIN AnimalHealthCondition ON Animal.AnimalID = AnimalHealthCondition.AnimalID
-JOIN MostSevereCondition ON AnimalHealthCondition.AnimalID = MostSevereCondition.AnimalID;
+    Animal.Species,
+    RankedConditions.ConditionDescription,
+    RankedConditions.Diagnosis,
+    RankedConditions.VisitDate
+FROM RankedConditions
+JOIN Animal ON Animal.AnimalID = RankedConditions.AnimalID
+WHERE RankedConditions.rn = 1
+ORDER BY RankedConditions.VisitDate DESC;
 
-
--- Complex query with joins
+-- Vet history for adopted animals: visit count, latest visit and who handled it.
+-- The staff member comes from the latest visit itself (ROW_NUMBER), not from grouping by
+-- staff, which would split an animal across rows once it sees more than one vet.
+WITH VisitHistory AS (
+    SELECT
+        VV.AnimalID,
+        VV.VisitDate,
+        VV.Diagnosis,
+        S.StaffName,
+        COUNT(*) OVER (PARTITION BY VV.AnimalID) AS TotalVisits,
+        ROW_NUMBER() OVER (PARTITION BY VV.AnimalID ORDER BY VV.VisitDate DESC) AS rn
+    FROM VetVisit VV
+    JOIN Staff S ON VV.StaffID = S.StaffID
+)
 SELECT
     A.AnimalID,
     A.AnimalName,
     A.Species,
-    COUNT(VV.VetVisitID) AS TotalVisits,
-    AVG(A.Age) AS AverageAgeDuringVisits,
-    MAX(VV.VisitDate) AS MostRecentVisitDate,
-    S.StaffName AS MostRecentVisitStaff
-FROM
-    Animal A
-JOIN
-    VetVisit VV ON A.AnimalID = VV.AnimalID
-JOIN
-    Staff S ON VV.StaffID = S.StaffID
-WHERE
-    A.AdoptionStatus = 'Adopted'
-GROUP BY
-    A.AnimalID, A.AnimalName, A.Species, S.StaffName
-ORDER BY
-    MostRecentVisitDate DESC;
-
--- Common Table Expression (CTE) for Veterinary Visits
-WITH VetVisitInfo AS (
-    SELECT
-        A.AnimalID,
-        A.AnimalName,
-        A.Species,
-        COUNT(VV.VetVisitID) AS TotalVisits,
-        AVG(A.Age) AS AverageAgeDuringVisits,
-        MAX(VV.VisitDate) AS MostRecentVisitDate,
-        S.StaffName AS MostRecentVisitStaff
-    FROM
-        Animal A
-    JOIN
-        VetVisit VV ON A.AnimalID = VV.AnimalID
-    JOIN
-        Staff S ON VV.StaffID = S.StaffID
-    WHERE
-        A.AdoptionStatus = 'Adopted'
-    GROUP BY
-        A.AnimalID, A.AnimalName, A.Species, S.StaffName
-)
-
--- Query using the CTE
-SELECT *
-FROM VetVisitInfo
+    A.Age,
+    VH.TotalVisits,
+    VH.VisitDate AS MostRecentVisitDate,
+    VH.Diagnosis AS MostRecentDiagnosis,
+    VH.StaffName AS MostRecentVisitStaff
+FROM Animal A
+JOIN VisitHistory VH ON VH.AnimalID = A.AnimalID AND VH.rn = 1
+WHERE A.AdoptionStatus = 'Adopted'
 ORDER BY MostRecentVisitDate DESC;
