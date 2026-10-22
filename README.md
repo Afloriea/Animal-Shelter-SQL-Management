@@ -2,9 +2,20 @@
 
 [![Build database](https://github.com/Afloriea/Animal-Shelter-SQL-Management/actions/workflows/build.yml/badge.svg)](https://github.com/Afloriea/Animal-Shelter-SQL-Management/actions/workflows/build.yml)
 
-A relational database for running an animal shelter on SQL Server (run locally in Docker): animal profiles, adopters, adoptions, health records, enrichment toys, staff and veterinary care. Business rules are enforced in the database with triggers, common workflows are wrapped in stored procedures, and every push rebuilds the whole database on SQL Server 2022 in GitHub Actions.
+A SQL Server database for running an animal shelter: animal profiles, adopters, adoptions, health records, enrichment toys, staff and veterinary care. Business rules are enforced in the database with triggers, common workflows are wrapped in stored procedures, and every push rebuilds the whole database on SQL Server 2022 in GitHub Actions.
 
 **Skills shown:** relational modelling · T-SQL · stored procedures · triggers · computed columns · CTEs and window functions · Docker · CI for database scripts
+
+---
+
+## 📌 At a glance
+
+| | |
+|---|---|
+| **Data model** | 13 tables in 5 areas (animals, adoption, health, staff, enrichment), with an ERD |
+| **Database logic** | 2 stored procedures, 2 triggers enforcing adoption rules, 2 computed columns, 3 analytical queries |
+| **Quality** | The full build runs on SQL Server 2022 in CI on every push; 6 bugs found and fixed along the way |
+| **Context** | Final project for IMT 543 ([presentation slides](docs/presentation.pdf)), later tested and refactored |
 
 ---
 
@@ -26,6 +37,15 @@ Shelter data tends to live in spreadsheets: which animals are available, who ado
 | **Staff** | `Staff` |
 | **Enrichment** | `Toy`, `AnimalToyAssignment` |
 
+### Entity-Relationship Diagram (ERD)
+
+![Animal Shelter ERD](docs/erd.png)
+
+The ERD was drawn before `Animal.BreedID` was added (see [Testing](#-testing-what-ci-caught)). The diagram below reflects the current schema.
+
+<details>
+<summary>Current schema as a diagram (includes <code>Animal.BreedID</code>)</summary>
+
 ```mermaid
 erDiagram
     Type ||--o{ Breed : has
@@ -45,7 +65,7 @@ erDiagram
     Toy ||--o{ AnimalToyAssignment : ""
 ```
 
-The original ERD from the project is in [`docs/erd.png`](docs/erd.png). It predates `Animal.BreedID`, which was added later (see [Fixes after review](#-fixes-after-review)).
+</details>
 
 ---
 
@@ -58,6 +78,17 @@ The original ERD from the project is in [`docs/erd.png`](docs/erd.png). It preda
 ### Triggers on `AdoptionEvent`
 - **`CheckAdoptedAnimal`** rejects an adoption if the animal isn't a dog or cat, or has already been adopted. It is set-based, so multi-row inserts are checked row by row. It is set to fire first so it sees the status before it changes.
 - **`UpdateAdoptionStatus`** marks the animal as `Adopted` once the event is recorded.
+
+```sql
+-- From CheckAdoptedAnimal: checks every inserted row, not just one
+IF EXISTS (
+    SELECT 1
+    FROM inserted i
+    JOIN Animal a ON a.AnimalID = i.AnimalID
+    WHERE a.AdoptionStatus = 'Adopted'
+)
+    THROW 50002, 'This animal has already been adopted.', 1;
+```
 
 ### Computed columns on `Animal`
 - **`FullName`**, for example "Whiskers the Cat".
@@ -110,9 +141,9 @@ Rejected: This animal has already been adopted.
 
 ---
 
-## 🔧 Fixes after review
+## 🧪 Testing: what CI caught
 
-Running the original script on a clean SQL Server instance in CI surfaced several problems, each fixed in its own pull request:
+Building the database from scratch on a clean SQL Server instance in CI surfaced six bugs in the original script. Each one was fixed in its own pull request:
 
 | Problem | Effect | Fix |
 |---|---|---|
@@ -153,7 +184,7 @@ Connect a SQL client to `localhost,1433` as `sa`. The project was built on macOS
 
 The [CI workflow](.github/workflows/build.yml) runs the same steps on every push.
 
-## 🧭 Limitations
+## 🧭 Limitations and next steps
 
 - `AdoptionEvent` and `AdoptionRecord` overlap. In the sample data they don't always agree with each other or with `Animal.AdoptionStatus`. Merging them into one table, with the status derived from it, is the next step.
 - `SendAdoptionNotification` only prints the message. A real shelter would queue an email.
